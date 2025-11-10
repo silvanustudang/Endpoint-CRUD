@@ -37,7 +37,7 @@ class UserController {
                 }
                 break;
             default:
-                http_response_code(405); // Method Not Allowed
+                http_response_code(405); 
                 echo json_encode(["message" => "Method tidak diizinkan."]);
                 break;
         }
@@ -46,18 +46,17 @@ class UserController {
     private function create() {
         $data = json_decode(file_get_contents("php://input"), true);
         
-        // --- VALIDASI DAN HASHING PASSWORD ---
         if (!isset($data['password'])) {
             http_response_code(400); 
             echo json_encode(["message" => "Password dibutuhkan."]);
             return;
         }
-        // Pastikan password di-hash sebelum dikirim ke Model
+        
         $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        // ------------------------------------
+        
 
         if ($this->userModel->create($data)) {
-            http_response_code(201); // Created
+            http_response_code(201); 
             echo json_encode(["message" => "User berhasil dibuat."]);
         } else {
             http_response_code(503); 
@@ -74,14 +73,13 @@ class UserController {
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 extract($row);
                 
-                // 🛠️ PERBAIKAN: Gunakan trim() pada password sebelum dimasukkan ke JSON
                 $password_clean = trim($password);
                 
                 $user_item = array(
                     "id" => $id,
                     "username" => $username,
                     "email" => $email,
-                    "password" => $password_clean // Menggunakan variabel yang sudah di-trim
+                    "password" => $password_clean 
                 );
                 array_push($users_arr, $user_item);
             }
@@ -100,7 +98,7 @@ class UserController {
         if ($num > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Tambahkan trim() jika ingin membersihkan output GET One juga
+            
             if(isset($row['password'])) {
                 $row['password'] = trim($row['password']);
             }
@@ -116,7 +114,7 @@ class UserController {
     private function update($id) {
         $data = json_decode(file_get_contents("php://input"), true);
         
-        // HASH jika password disertakan dalam request PUT
+        
         if (isset($data['password'])) {
              $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
